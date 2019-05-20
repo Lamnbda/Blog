@@ -24,11 +24,11 @@ app.get("/", function (req, res) {
     homeContent: homeStartingContent,
     posts: posts
   });
- 
+
 });
 
 app.post("/", function (req, res) {
-  
+
 })
 
 //The About page
@@ -60,6 +60,16 @@ app.post("/compose", function (req, res) {
 
   posts.push(post);
   res.redirect("/");
+
+})
+
+app.get("/posts/:postTitle", function (req, res) {
+res.send(req.params);
+for(let i =0;i<posts.length;i++){
+  if(req.params === posts.postTitle){
+    console.log("It's a match");
+  }
+}
   
 })
 
