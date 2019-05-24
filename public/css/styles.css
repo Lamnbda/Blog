@@ -40,3 +40,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.inlineE{
+    display: inline-block;
+    vertical-align: top;
+}
