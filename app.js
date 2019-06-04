@@ -11,7 +11,6 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 
 const app = express();
-let posts = [];
 
 app.set('view engine', 'ejs');
 
@@ -21,24 +20,44 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 //Connection String for mongoose database
-mongoose.connect('mongodb://127.0.0.1:27017/basicblogDB', {useNewUrlParser: true});
+mongoose.connect('mongodb://127.0.0.1:27017/basicblogDB', {
+  useNewUrlParser: true
+});
+
+//This will test if we are connected to mongoDB
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log("We are connected to the mongoDB!")
+});
 
 //Schema for the mongoose model to follow
 let Schema = mongoose.Schema;
 
 let blogSchema = new Schema({
- title: String,
- body: String
+  title: String,
+  body: String
 });
 
 let Blog = mongoose.model('Blog', blogSchema);
 
+var blog1 = new Blog({
+  title: "Day 1",
+  body: "I am hungry for knowledge"
+})
+
 //The Home route
 app.get("/", function (req, res) {
-  res.render("home", {
-    homeStartingContent: homeStartingContent,
-    posts: posts
-  });
+  Blog.find({}, function(err, blogPosts){
+    if(!err){
+      res.render("home", {
+        homeStartingContent: homeStartingContent,
+        posts: blogPosts
+      });
+    }
+  })
+
+
 });
 
 
@@ -62,11 +81,16 @@ app.get("/compose", function (req, res) {
 })
 
 app.post("/compose", function (req, res) {
-  let post = {
-    postTitle: req.body.postTitle,
-    postBody: req.body.postBody,
-  };
-  posts.push(post);
+
+  let postTitle = req.body.postTitle;
+  let postBody = req.body.postBody;
+
+  const blogPost = new Blog({
+    blogTitle: postTitle,
+    blogBody: postBody
+  })
+  Blog.save();
+
   res.redirect("/");
 })
 
