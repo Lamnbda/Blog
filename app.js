@@ -27,7 +27,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/basicblogDB', {
 //This will test if we are connected to mongoDB
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+db.once('open', function () {
   console.log("We are connected to the mongoDB!")
 });
 
@@ -35,21 +35,27 @@ db.once('open', function() {
 let Schema = mongoose.Schema;
 
 let blogSchema = new Schema({
-  title: String,
-  body: String
+  postTitle: String,
+  postBody: String
 });
 
 let Blog = mongoose.model('Blog', blogSchema);
 
 var blog1 = new Blog({
-  title: "Day 1",
-  body: "I am hungry for knowledge"
+  postTitle: "Home",
+  postBody: "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing."
 })
+
+let blog2 = new Blog({
+  postTitle: "Day 1",
+  postBody: "I am hunry for knowledge"
+})
+
 
 //The Home route
 app.get("/", function (req, res) {
-  Blog.find({}, function(err, blogPosts){
-    if(!err){
+  Blog.find({}, function (err, blogPosts) {
+    if (!err) {
       res.render("home", {
         homeStartingContent: homeStartingContent,
         posts: blogPosts
@@ -85,29 +91,38 @@ app.post("/compose", function (req, res) {
   let postTitle = req.body.postTitle;
   let postBody = req.body.postBody;
 
-  const blogPost = new Blog({
-    blogTitle: postTitle,
-    blogBody: postBody
-  })
-  Blog.save();
-
+   const blogPost = new Blog({
+     postTitle: postTitle,
+     postBody: postBody
+   })
+   blogPost.save();
   res.redirect("/");
 })
 
 app.get("/posts/:postTitle", function (req, res) {
   let requestedTitle = req.params.postTitle;
+  let requestedBody = req.params.postBody;
 
-  posts.forEach(function (post) {
-    if (_.lowerCase(requestedTitle) === _.lowerCase(post.postTitle)) {
-      res.render("post", {
-        postTitle: post.postTitle,
-        postBody: post.postBody
-      })
-    } else {
-      console.log("There is no match");
+  Blog.findOne({postTitle: requestedTitle}, function(err,blogPost){
+    if(!err){
+      if(_.lowerCase(requestedTitle) === _.lowerCase(blogPost)){
+        res.render("post",{postTitle: requestedTitle, postBody: requestedBody})
+      }
+    } else{ 
+      console.log(err)
     }
-
   })
+  // posts.forEach(function (post) {
+  //   if (_.lowerCase(requestedTitle) === _.lowerCase(post.postTitle)) {
+  //     res.render("post", {
+  //       postTitle: post.postTitle,
+  //       postBody: post.postBody
+  //     })
+  //   } else {
+  //     console.log("There is no match");
+  //   }
+
+  // })
 })
 
 app.listen(3000, function () {
