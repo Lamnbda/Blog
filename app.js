@@ -62,8 +62,6 @@ app.get("/", function (req, res) {
       });
     }
   })
-
-
 });
 
 
@@ -105,8 +103,10 @@ app.get("/posts/:postTitle", function (req, res) {
 
   Blog.findOne({postTitle: requestedTitle}, function(err,blogPost){
     if(!err){
-      if(_.lowerCase(requestedTitle) === _.lowerCase(blogPost)){
-        res.render("post",{postTitle: requestedTitle, postBody: requestedBody})
+      if(_.lowerCase(requestedTitle) === _.lowerCase(blogPost.postTitle)){
+        res.render("post",
+        {postTitle: requestedTitle,
+        postBody: blogPost.postBody})
       }
     } else{ 
       console.log(err)
